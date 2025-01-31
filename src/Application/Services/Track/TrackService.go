@@ -52,5 +52,5 @@ func (this *TrackService) GetTimeEntriesByProjectId(projectId int, startDate tim
 		}
 	}
 
-	return timeEntries, nil
+	return timeEntriesByProjectId, nil
 }
