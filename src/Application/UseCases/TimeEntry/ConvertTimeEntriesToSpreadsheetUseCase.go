@@ -6,15 +6,14 @@ import (
 	"toggl-xlsx-back/src/Application/Errors"
 	"toggl-xlsx-back/src/Application/Services/Spreadsheet"
 	"toggl-xlsx-back/src/Application/Services/Track"
-	"toggl-xlsx-back/src/Domain/Entities"
 )
 
 type ConvertTimeEntriesToSpreadsheetUseCase struct {
 	trackService       *Track.TrackService
-	spreadSheetService *Spreadsheet.SpreadsheetService[Entities.TimeEntryEntity]
+	spreadSheetService *Spreadsheet.SpreadsheetService
 }
 
-func NewConvertTimeEntriesToSpreadsheetUseCase(trackService *Track.TrackService, spreadSheetService *Spreadsheet.SpreadsheetService[Entities.TimeEntryEntity]) *ConvertTimeEntriesToSpreadsheetUseCase {
+func NewConvertTimeEntriesToSpreadsheetUseCase(trackService *Track.TrackService, spreadSheetService *Spreadsheet.SpreadsheetService) *ConvertTimeEntriesToSpreadsheetUseCase {
 	return &ConvertTimeEntriesToSpreadsheetUseCase{trackService: trackService, spreadSheetService: spreadSheetService}
 }
 
@@ -25,7 +24,12 @@ func (this *ConvertTimeEntriesToSpreadsheetUseCase) Execute(email string, passwo
 		return nil, &Errors.ServiceUnavailable{Message: "Serviço de track indisponível"}
 	}
 
-	spreadSheet, error := this.spreadSheetService.ConvertManyToSpreadsheet(time.Now().Month().String(), []string{"Date", "Duration", "Description"}, timeEntries)
+	timeEntriesMap := []map[string]string{}
+	for _, timeEntry := range timeEntries {
+		timeEntriesMap = append(timeEntriesMap, timeEntry.ToMap())
+	}
+
+	spreadSheet, error := this.spreadSheetService.ConvertManyToSpreadsheet(time.Now().Month().String(), []string{"Date", "Duration", "Description"}, timeEntriesMap)
 	if error != nil {
 		return nil, error
 	}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -22,7 +21,6 @@ func Send[Response interface{}](client *http.Client, request *Request) (Response
 	for key, value := range request.headers {
 		req.Header.Add(key, value)
 	}
-	fmt.Println(req)
 	response, error := client.Do(req)
 	if error != nil {
 		return result, error

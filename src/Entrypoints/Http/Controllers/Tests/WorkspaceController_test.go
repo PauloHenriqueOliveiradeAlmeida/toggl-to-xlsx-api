@@ -2,9 +2,6 @@ package Tests
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,6 +12,9 @@ import (
 	"toggl-xlsx-back/src/Entrypoints/Http/Controllers"
 	"toggl-xlsx-back/src/Entrypoints/Http/Middlewares"
 	"toggl-xlsx-back/src/Tests/Mocks"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetWorkspacesShouldBeSuccess(test *testing.T) {
@@ -28,7 +28,7 @@ func TestGetWorkspacesShouldBeSuccess(test *testing.T) {
 
 	trackMock := Mocks.NewTrackMock(workspaces, nil)
 
-	controllers.NewWorkspaceController(router, Workspace.NewGetWorkspacesUseCase(Track.NewTrackService(trackMock)))
+	Controllers.NewWorkspaceController(router, Workspace.NewGetWorkspacesUseCase(Track.NewTrackService(trackMock)))
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest("GET", "/workspaces", nil)
@@ -47,13 +47,12 @@ func TestErrorOnGetWorkspaces(test *testing.T) {
 	error := &Errors.ServiceUnavailable{Message: "Serviço de track indisponível"}
 
 	trackMock := Mocks.NewTrackMock([]Entities.WorkspaceEntity{}, error)
-	controllers.NewWorkspaceController(router, Workspace.NewGetWorkspacesUseCase(Track.NewTrackService(trackMock)))
+	Controllers.NewWorkspaceController(router, Workspace.NewGetWorkspacesUseCase(Track.NewTrackService(trackMock)))
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest("GET", "/workspaces", nil)
 	router.ServeHTTP(recorder, request)
 
-	fmt.Println(recorder)
 	assert.Equal(test, http.StatusServiceUnavailable, recorder.Code)
 
 	payload, _ := json.Marshal(error)

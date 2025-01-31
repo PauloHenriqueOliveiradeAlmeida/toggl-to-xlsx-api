@@ -2,15 +2,15 @@ package Spreadsheet
 
 import "bytes"
 
-type SpreadsheetService[T interface{}] struct {
-	spreadsheet ISpreadsheet[T]
+type SpreadsheetService struct {
+	spreadsheet ISpreadsheet
 }
 
-func NewSpreadsheetService[T interface{}](spreadsheet ISpreadsheet[T]) *SpreadsheetService[T] {
-	return &SpreadsheetService[T]{spreadsheet: spreadsheet}
+func NewSpreadsheetService(spreadsheet ISpreadsheet) *SpreadsheetService {
+	return &SpreadsheetService{spreadsheet: spreadsheet}
 }
 
-func (this *SpreadsheetService[T]) ConvertManyToSpreadsheet(fileName string, headers []string, data []T) (*bytes.Buffer, error) {
+func (this *SpreadsheetService) ConvertManyToSpreadsheet(fileName string, headers []string, data []map[string]string) (*bytes.Buffer, error) {
 	file, error := this.spreadsheet.ConvertManyToSpreadsheet(fileName, headers, data)
 	if error != nil {
 		return nil, error
