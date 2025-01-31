@@ -2,18 +2,17 @@ package Spreadsheet
 
 import (
 	"bytes"
-	"strconv"
-
 	"github.com/xuri/excelize/v2"
+	"strconv"
 )
 
-type ExcelClient[T interface{}] struct{}
+type ExcelClient struct{}
 
-func NewExcelClient[T interface{}]() *ExcelClient[T] {
-	return &ExcelClient[T]{}
+func NewExcelClient() *ExcelClient {
+	return &ExcelClient{}
 }
 
-func (this *ExcelClient[T]) ConvertManyToSpreadsheet(sheetName string, headers []string, data []T) (*bytes.Buffer, error) {
+func (this *ExcelClient) ConvertManyToSpreadsheet(sheetName string, headers []string, data []map[string]string) (*bytes.Buffer, error) {
 
 	file := excelize.NewFile()
 	file.SetSheetName(file.GetSheetName(0), sheetName)
@@ -24,9 +23,20 @@ func (this *ExcelClient[T]) ConvertManyToSpreadsheet(sheetName string, headers [
 
 	for index, row := range data {
 		for columnIndex, cell := range headers {
-			err := file.SetCellValue(sheetName, strconv.Itoa(index+2)+string('A'+uint8(columnIndex)), cell)
+			value := row[cell]
+			if value == "" {
+				value = "-"
+			}
+			err := file.SetCellValue(sheetName, string(rune(65+columnIndex))+strconv.Itoa(index+2), value)
 			if err != nil {
 				return nil, err
+			}
+			columnWidth, error := file.GetColWidth(sheetName, string(rune(65+columnIndex)))
+			if error != nil {
+				return nil, error
+			}
+			if int(columnWidth) < len(value) {
+				file.SetColWidth(sheetName, string(rune(65+columnIndex)), string(rune(65+columnIndex)), float64(len(value)+5))
 			}
 		}
 	}
