@@ -3,6 +3,7 @@ package Track
 import (
 	"encoding/base64"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 	"toggl-xlsx-back/src/Application/Services/Request"
@@ -27,19 +28,19 @@ func (this *TogglClient) SetCredentials(email string, password string) {
 }
 
 func (this *TogglClient) GetWorkspaces() ([]Entities.WorkspaceEntity, error) {
-	request := this.buildGetRequest("https://api.track.toggl.com/api/v9/me/workspaces")
+	request := this.buildGetRequest(os.Getenv("TRACK_API_BASE_URL") + "/me/workspaces")
 	response, error := Request.Send[[]Entities.WorkspaceEntity](this.client, request)
 	return response, error
 }
 
 func (this *TogglClient) GetProjects(workspaceId int) ([]Entities.ProjectEntity, error) {
-	request := this.buildGetRequest("https://api.track.toggl.com/api/v9/workspaces/" + strconv.Itoa(workspaceId) + "/projects")
+	request := this.buildGetRequest(os.Getenv("TRACK_API_BASE_URL") + "/workspaces/" + strconv.Itoa(workspaceId) + "/projects")
 	response, error := Request.Send[[]Entities.ProjectEntity](this.client, request)
 	return response, error
 }
 
 func (this *TogglClient) GetTimeEntries(startDate time.Time, endDate time.Time) ([]Entities.TimeEntryEntity, error) {
-	request := this.buildGetRequest("https://api.track.toggl.com/api/v9/me/time_entries?start_date=" + startDate.Format("2006-01-02") + "&end_date=" + endDate.Format("2006-01-02"))
+	request := this.buildGetRequest(os.Getenv("TRACK_API_BASE_URL") + "/me/time_entries?start_date=" + startDate.Format("2006-01-02") + "&end_date=" + endDate.Format("2006-01-02"))
 	response, error := Request.Send[[]Entities.TimeEntryEntity](this.client, request)
 	return response, error
 }
